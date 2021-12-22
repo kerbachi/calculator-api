@@ -1,2 +1,12 @@
 aws-cdk.core>=1.134.0
 aws-cdk.assertions>=1.134.0
+aws_cdk.aws_iam>=1.134.0
+aws_cdk.aws_route53>=1.134.0
+aws_cdk.aws_route53_targets>=1.134.0
+aws_cdk.aws_apigatewayv2>=1.134.0
+aws_cdk.aws_apigatewayv2_authorizers>=1.134.0
+aws_cdk.aws_lambda>=1.134.0
+aws_cdk.aws_codepipeline>=1.134.0
+aws_cdk.aws_codepipeline_actions>=1.134.0
+aws_cdk.aws_certificatemanager>=1.134.0
+aws_cdk.aws_cognito>=1.134.0
