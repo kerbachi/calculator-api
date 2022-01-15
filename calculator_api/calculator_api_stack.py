@@ -93,51 +93,6 @@ class CalculatorApiStack(cdk.Stack):
         self.jwt_issuer = "https://cognito-idp." + core.Aws.REGION + ".amazonaws.com/" + self.userpool_id
 
 
-        # Lambda "lambda_plus" in Python
-        with open("lambdas/lambda_plus.py", encoding="utf8") as fp:
-            handler_code = fp.read()
-
-        lambda_plus = aws_lambda.Function(
-            self,
-            "lambda_plus",
-            function_name="lambda_plus",
-            description="Simple lambda to do addition",
-            code=aws_lambda.InlineCode(handler_code),
-            handler="index.handler",
-            timeout=core.Duration.seconds(3),
-            runtime=aws_lambda.Runtime.PYTHON_3_9
-        )
-
-        # Lambda "lambda_minus" in JS
-        with open("lambdas/lambda_minus.js", encoding="utf8") as fp:
-            handler_code = fp.read()
-
-        lambda_minus = aws_lambda.Function(
-            self,
-            "lambda_minus",
-            function_name="lambda_minus",
-            description="Simple lambda to do minus operation",
-            code=aws_lambda.InlineCode(handler_code),
-            handler="index.handler",
-            timeout=core.Duration.seconds(3),
-            runtime=aws_lambda.Runtime.NODEJS_14_X
-        )
-        
-        # Lambda "lambda_default_route" in Python
-        with open("lambdas/lambda_default_route.py", encoding="utf8") as fp:
-            handler_code = fp.read()
-
-        lambda_default_route = aws_lambda.Function(
-            self,
-            "lambda_default_route",
-            function_name="lambda_default_route",
-            description="lambda for default route",
-            code=aws_lambda.InlineCode(handler_code),
-            handler="index.handler",
-            timeout=core.Duration.seconds(3),
-            runtime=aws_lambda.Runtime.PYTHON_3_9
-        )
-
         # HTTP API
         apigw = aws_apigatewayv2.HttpApi(
             self,
@@ -155,7 +110,23 @@ class CalculatorApiStack(cdk.Stack):
             auto_deploy=True
         )
 
-        # Give the APIGateway permission to call the lambda functions
+
+        # Lambda "lambda_plus" in Python
+        with open("lambdas/lambda_plus.py", encoding="utf8") as fp:
+            handler_code = fp.read()
+
+        lambda_plus = aws_lambda.Function(
+            self,
+            "lambda_plus",
+            function_name="lambda_plus",
+            description="Simple lambda to do addition",
+            code=aws_lambda.InlineCode(handler_code),
+            handler="index.handler",
+            timeout=core.Duration.seconds(3),
+            runtime=aws_lambda.Runtime.PYTHON_3_9
+        )
+
+        # Permission for HTTP API to call the LAmbda function 
         lambda_plus.add_permission(
             "ApiGwPermLambdaPlus",
             action="lambda:InvokeFunction",
@@ -163,6 +134,22 @@ class CalculatorApiStack(cdk.Stack):
             source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/plus"
         )
 
+        # Lambda "lambda_minus" in JS
+        with open("lambdas/lambda_minus.js", encoding="utf8") as fp:
+            handler_code = fp.read()
+
+        lambda_minus = aws_lambda.Function(
+            self,
+            "lambda_minus",
+            function_name="lambda_minus",
+            description="Simple lambda to do minus operation",
+            code=aws_lambda.InlineCode(handler_code),
+            handler="index.handler",
+            timeout=core.Duration.seconds(3),
+            runtime=aws_lambda.Runtime.NODEJS_14_X
+        )
+
+        # Permission for HTTP API to call the Lambda function   
         lambda_minus.add_permission(
             "ApiGwPermLambdaMinus",
             action="lambda:InvokeFunction",
@@ -170,11 +157,50 @@ class CalculatorApiStack(cdk.Stack):
             source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/minus"
         )
         
+        # Lambda "lambda_default_route" in Python
+        with open("lambdas/lambda_default_route.py", encoding="utf8") as fp:
+            handler_code = fp.read()
+
+        lambda_default_route = aws_lambda.Function(
+            self,
+            "lambda_default_route",
+            function_name="lambda_default_route",
+            description="lambda for default route",
+            code=aws_lambda.InlineCode(handler_code),
+            handler="index.handler",
+            timeout=core.Duration.seconds(3),
+            runtime=aws_lambda.Runtime.PYTHON_3_9
+        )
+
+        # Permission for HTTP API to call the Lambda function   
         lambda_default_route.add_permission(
             "ApiGwPermLambdaDefaultRoute",
             action="lambda:InvokeFunction",
             principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
             source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/$default"
+        )
+
+        # Lambda "lambda_test_typescript" in Typescript
+        with open("lambdas/typescript/dist/index.js", encoding="utf8") as fp:
+            handler_code = fp.read()
+
+        lambda_typescript = aws_lambda.Function(
+            self,
+            "lambda_typescrypt",
+            function_name="lambda_typescript",
+            description="Simple lambda with typescript",
+            code=aws_lambda.Code.from_asset('lambdas/typescript/dist/'), # InlineCode(handler_code),
+            handler="index.handler",
+            timeout=core.Duration.seconds(3),
+            runtime=aws_lambda.Runtime.NODEJS_14_X
+        )
+
+        # Permission for HTTP API to call the LAmbda function
+        lambda_typescript.add_permission(
+            "ApiGwPermLambdaDefaultRoute",
+            action="lambda:InvokeFunction",
+            principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
+            source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/ts"
         )
         
         # Default Integration + default authorizer
@@ -259,6 +285,28 @@ class CalculatorApiStack(cdk.Stack):
         )
 
         http_api_route_default.node.add_dependency(default_integration)
+
+        # Route /ts with  lambda_typescript
+        endpoint_ts_integration = aws_apigatewayv2.HttpIntegration(
+            self,
+            "IntegrationTs",
+            http_api=apigw,
+            integration_type=aws_apigatewayv2.HttpIntegrationType.LAMBDA_PROXY,
+            integration_uri=lambda_typescript.function_arn,
+            method=aws_apigatewayv2.HttpMethod.ANY,
+            payload_format_version=aws_apigatewayv2.PayloadFormatVersion.VERSION_2_0,
+            secure_server_name=sub_domain_public + '.' + dns_domain
+        )
+
+        http_api_route_lambda_typescript = aws_apigatewayv2.CfnRoute(
+            self,
+            "Route_lambda_typescript",
+            api_id=apigw.api_id,
+            route_key="GET /ts",
+            authorization_type="NONE",
+            # authorizer_id=jwt_authorizer.authorizer_id,
+            target="integrations/" + endpoint_ts_integration.integration_id
+        )
 
         # Oauth2 Authentication Route
         oauth2_integration = aws_apigatewayv2.HttpIntegration(
