@@ -128,7 +128,7 @@ curl --location --request GET 'https://calculator-api.my-domain.com/minus?val1=3
 The result `7` (10-3) is returned from the Lambda `lambda_minus`
 
 
-However, the default route (in our case the root path) doesn't need an authentication 
+However, the default route (in our case the root path) doesn't need  authentication 
 
 ```bash
 $ curl --request GET https://calculator-api.my-domain.com
