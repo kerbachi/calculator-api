@@ -43,6 +43,13 @@ class CalculatorApiStack(cdk.Stack):
             removal_policy=core.RemovalPolicy.DESTROY
         )
 
+        # Add Cognito Username Pool to Cloudformation output
+        core.CfnOutput(
+            self,
+            "UserPoolID",
+            value=userpool.user_pool_id #user_pool_provider_name# _client. user_pool_client_name
+        )
+
         userpool.add_domain(
             userpool_domain,
             cognito_domain=cognito.CognitoDomainOptions(
@@ -77,6 +84,13 @@ class CalculatorApiStack(cdk.Stack):
                 scopes=[cognito.OAuthScope.resource_server(userpool_resource_servers, read_scope)]
             ),
             prevent_user_existence_errors=True,
+        )
+
+        # Add Cognito Client ID to Cloudformation output
+        core.CfnOutput(
+            self,
+            "UserPoolClientID",
+            value=userpool_client.user_pool_client_id
         )
 
         authorizer = aws_apigatewayv2_authorizers.HttpUserPoolAuthorizer(
@@ -411,4 +425,11 @@ class CalculatorApiStack(cdk.Stack):
             zone=hosted_zone,
             comment="RecordSet for Stack " + self.stack_name,
             record_name=sub_domain_public
+        )
+
+        # Add DNS name to Cloudformation output
+        core.CfnOutput(
+            self,
+            "DnsRecord",
+            value=custom_domain_name.domain_name
         )
