@@ -47,7 +47,7 @@ class CalculatorApiStack(cdk.Stack):
         core.CfnOutput(
             self,
             "UserPoolID",
-            value=userpool.user_pool_id #user_pool_provider_name# _client. user_pool_client_name
+            value=userpool.user_pool_id
         )
 
         userpool.add_domain(
@@ -341,42 +341,6 @@ class CalculatorApiStack(cdk.Stack):
             route_key="ANY /oauth2/token",
             target="integrations/" +  oauth2_integration.integration_id
         )
-
-
-        # Allow Docs without authorization # To replace docs with something else
-
-        # http_api_route_docs = aws_apigatewayv2.CfnRoute(
-        #     self,
-        #     "RouteDocs",
-        #     api_id=apigw.api_id,
-        #     route_key="GET /docs",
-        #     authorization_type="NONE",
-        #     target="integrations/" + default_integration.integration_id
-        # )
-
-        # http_api_route_default.node.add_dependency(http_api_route_docs)
-
-        # http_api_route_openapi = aws_apigatewayv2.CfnRoute(
-        #     self,
-        #     "Routeopenapi",
-        #     api_id=apigw.api_id,
-        #     route_key="GET /openapi.json",
-        #     authorization_type="NONE",
-        #     target="integrations/"+default_integration.integration_id
-        # )
-
-        # http_api_route_default.node.add_dependency(http_api_route_openapi)
-
-        # http_api_route_redoc = aws_apigatewayv2.CfnRoute(
-        #     self,
-        #     "RouteRedocs",
-        #     api_id=apigw.api_id,
-        #     route_key="GET /redoc",
-        #     authorization_type="NONE",
-        #     target="integrations/"+default_integration.integration_id
-        # )
-
-        # http_api_route_default.node.add_dependency(http_api_route_redoc)
 
         ###############################
         # SSL Certificate
