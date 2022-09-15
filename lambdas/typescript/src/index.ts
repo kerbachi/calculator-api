@@ -1,8 +1,7 @@
-//ts-node src/index.ts 
-
+// ts-node src/index.ts 
 // npm install
 // move node_modules to dist/
-//tsc -> Compile JS code in dist/
+// tsc -> Compile JS code in dist/
 
 
 import Ajv from "ajv"
@@ -40,13 +39,6 @@ export const handler = async (event: any = {}): Promise<any> => {
             "body": JSON.stringify(special_response)
         };
     }
-    // const special_response={
-    //     "key1": 1,
-    //     "Key2": 2
-    // };
-    // const response = {
-    //     "statusCode": 200,
-    //     "body": JSON.stringify(special_response)
-    // };
+
     return response;
 }

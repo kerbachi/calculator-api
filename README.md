@@ -1,7 +1,16 @@
 
 # Welcome to the Calculator API projet!
 
-This is a demo project to deploy a calculator API using AWS CDK with Python.
+This is a demo project to deploy a calculator API using AWS CDK v2 with Python.<br><br>
+The application is based on 
+* AWS HTTP API serverless API Gateway for the API endpoints,
+* Two Lambda functions, onr for addition the second for substraciton.
+* Cognito for Authentication using OAuth2
+* Route 53 to create the DNS record for the API endpoints
+
+
+![Caclulator API Architecture](pictures/CalculatorApi.png)
+
 
 # Environment Setup
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
