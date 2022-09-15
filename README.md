@@ -136,11 +136,6 @@ Hello! This is the default route.
  received event: {"version": "2.0", "routeKey": "$default", "rawPath": "/", "rawQueryString": "", "headers": {"accept": "*/*", "content-length": "0", "host": "calculator-api.my-domain.com", "user-agent": "curl/7.75.0", "x-amzn-trace-id": "Root=1-61c38f44-6762a5b730fd53e1428fcaab", "x-forwarded-for": "44.33.22.11", "x-forwarded-port": "443", "x-forwarded-proto": "https"}, "requestContext": {"accountId": "012345678910", "apiId": "f9va58ihri", "domainName": "calculator-api.my-domain.com", "domainPrefix": "calculator-api", "http": {"method": "GET", "path": "/", "protocol": "HTTP/1.1", "sourceIp": "44.33.22.11", "userAgent": "curl/7.75.0"}, "requestId": "KxNSxgU2IAMEVvc=", "routeKey": "$default", "stage": "$default", "time": "22/Dec/2021:20:49:08 +0000", "timeEpoch": 1640206148700}, "isBase64Encoded": false}(.venv)
 ```
 
-# TODO
-
-* Switch to CDK v2
-
-
 
 
 

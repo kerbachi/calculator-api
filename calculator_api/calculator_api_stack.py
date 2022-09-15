@@ -1,7 +1,13 @@
 from aws_cdk import(
-    core as cdk,
-    aws_apigatewayv2,
-    aws_apigatewayv2_authorizers,
+    App,
+    Stack,
+    RemovalPolicy,
+    CfnOutput,
+    Aws,
+    Duration,
+    aws_apigatewayv2_alpha as aws_apigatewayv2,
+    aws_apigatewayv2 as aws_apigatewayv2_stable,
+    aws_apigatewayv2_authorizers_alpha as aws_apigatewayv2_authorizers,
     aws_route53,
     aws_route53_targets,
     aws_lambda,
@@ -9,17 +15,13 @@ from aws_cdk import(
     aws_iam as iam,
     aws_cognito as cognito
 )
-
-# For consistency with other languages, `cdk` is the preferred import name for
-# the CDK's core module.  The following line also imports it as `core` for use
-# with examples from the CDK Developer's Guide, which are in the process of
-# being updated to use `cdk`.  You may delete this import if you don't need it.
-from aws_cdk import core
+from constructs import Construct
 import os
 
-class CalculatorApiStack(cdk.Stack):
 
-    def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
+class CalculatorApiStack(Stack):
+
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
 
@@ -40,11 +42,11 @@ class CalculatorApiStack(cdk.Stack):
             self,
             "UserPool-" +self.stack_name,
             user_pool_name="UserPool-" + self.stack_name,
-            removal_policy=core.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         # Add Cognito Username Pool to Cloudformation output
-        core.CfnOutput(
+        CfnOutput(
             self,
             "UserPoolID",
             value=userpool.user_pool_id
@@ -87,7 +89,7 @@ class CalculatorApiStack(cdk.Stack):
         )
 
         # Add Cognito Client ID to Cloudformation output
-        core.CfnOutput(
+        CfnOutput(
             self,
             "UserPoolClientID",
             value=userpool_client.user_pool_client_id
@@ -103,8 +105,8 @@ class CalculatorApiStack(cdk.Stack):
 
         self.userpool_id = userpool.user_pool_id
         self.userpool_audience = userpool_client.user_pool_client_id
-        self.userpool_demain_name = "https://" + userpool_domain + ".auth." + core.Aws.REGION + ".amazoncognito.com"
-        self.jwt_issuer = "https://cognito-idp." + core.Aws.REGION + ".amazonaws.com/" + self.userpool_id
+        self.userpool_demain_name = "https://" + userpool_domain + ".auth." + Aws.REGION + ".amazoncognito.com"
+        self.jwt_issuer = "https://cognito-idp." + Aws.REGION + ".amazonaws.com/" + self.userpool_id
 
 
         # HTTP API
@@ -136,7 +138,7 @@ class CalculatorApiStack(cdk.Stack):
             description="Simple lambda to do addition",
             code=aws_lambda.InlineCode(handler_code),
             handler="index.handler",
-            timeout=core.Duration.seconds(3),
+            timeout=Duration.seconds(3),
             runtime=aws_lambda.Runtime.PYTHON_3_9
         )
 
@@ -145,7 +147,7 @@ class CalculatorApiStack(cdk.Stack):
             "ApiGwPermLambdaPlus",
             action="lambda:InvokeFunction",
             principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
-            source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/plus"
+            source_arn="arn:aws:execute-api:" + Aws.REGION + ":" + Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/plus"
         )
 
         # Lambda "lambda_minus" in JS
@@ -159,7 +161,7 @@ class CalculatorApiStack(cdk.Stack):
             description="Simple lambda to do minus operation",
             code=aws_lambda.InlineCode(handler_code),
             handler="index.handler",
-            timeout=core.Duration.seconds(3),
+            timeout=Duration.seconds(3),
             runtime=aws_lambda.Runtime.NODEJS_14_X
         )
 
@@ -168,7 +170,7 @@ class CalculatorApiStack(cdk.Stack):
             "ApiGwPermLambdaMinus",
             action="lambda:InvokeFunction",
             principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
-            source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/minus"
+            source_arn="arn:aws:execute-api:" + Aws.REGION + ":" + Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/minus"
         )
         
         # Lambda "lambda_default_route" in Python
@@ -182,7 +184,7 @@ class CalculatorApiStack(cdk.Stack):
             description="lambda for default route",
             code=aws_lambda.InlineCode(handler_code),
             handler="index.handler",
-            timeout=core.Duration.seconds(3),
+            timeout=Duration.seconds(3),
             runtime=aws_lambda.Runtime.PYTHON_3_9
         )
 
@@ -191,7 +193,7 @@ class CalculatorApiStack(cdk.Stack):
             "ApiGwPermLambdaDefaultRoute",
             action="lambda:InvokeFunction",
             principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
-            source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/$default"
+            source_arn="arn:aws:execute-api:" + Aws.REGION + ":" + Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/$default"
         )
 
         # Lambda "lambda_test_typescript" in Typescript
@@ -203,9 +205,9 @@ class CalculatorApiStack(cdk.Stack):
             "lambda_typescrypt",
             function_name="lambda_typescript",
             description="Simple lambda with typescript",
-            code=aws_lambda.Code.from_asset('lambdas/typescript/dist/'), # InlineCode(handler_code),
+            code=aws_lambda.Code.from_asset('lambdas/typescript/dist/'),
             handler="index.handler",
-            timeout=core.Duration.seconds(3),
+            timeout=Duration.seconds(3),
             runtime=aws_lambda.Runtime.NODEJS_14_X
         )
 
@@ -214,7 +216,7 @@ class CalculatorApiStack(cdk.Stack):
             "ApiGwPermLambdaDefaultRoute",
             action="lambda:InvokeFunction",
             principal=iam.ServicePrincipal(service="apigateway.amazonaws.com"),
-            source_arn="arn:aws:execute-api:" + core.Aws.REGION + ":" + core.Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/ts"
+            source_arn="arn:aws:execute-api:" + Aws.REGION + ":" + Aws.ACCOUNT_ID + ":" + apigw.http_api_id +"/*/*/ts"
         )
         
         # Default Integration + default authorizer
@@ -222,8 +224,8 @@ class CalculatorApiStack(cdk.Stack):
             self,
             "DefaultIntegration",
             http_api=apigw,
-            integration_type=aws_apigatewayv2.HttpIntegrationType.LAMBDA_PROXY,
-            integration_uri=lambda_default_route.function_arn, # lambda_plus.function_arn,
+            integration_type=aws_apigatewayv2.HttpIntegrationType.AWS_PROXY, # LAMBDA_PROXY for cdk v1
+            integration_uri=lambda_default_route.function_arn,
             method=aws_apigatewayv2.HttpMethod.ANY,
             payload_format_version=aws_apigatewayv2.PayloadFormatVersion.VERSION_2_0,
             secure_server_name=sub_domain_public + '.' + dns_domain
@@ -241,7 +243,7 @@ class CalculatorApiStack(cdk.Stack):
         )
 
         # Default route
-        http_api_route_default = aws_apigatewayv2.CfnRoute(
+        http_api_route_default = aws_apigatewayv2_stable.CfnRoute(
             self,
             "RouteDefault",
             api_id=apigw.api_id,
@@ -258,14 +260,14 @@ class CalculatorApiStack(cdk.Stack):
             self,
             "IntegrationPlus",
             http_api=apigw,
-            integration_type=aws_apigatewayv2.HttpIntegrationType.LAMBDA_PROXY,
+            integration_type=aws_apigatewayv2.HttpIntegrationType.AWS_PROXY, # LAMBDA_PROXY for cdk v1
             integration_uri=lambda_plus.function_arn,
             method=aws_apigatewayv2.HttpMethod.ANY,
             payload_format_version=aws_apigatewayv2.PayloadFormatVersion.VERSION_2_0,
             secure_server_name=sub_domain_public + '.' + dns_domain
         )
 
-        http_api_route_lambda_plus = aws_apigatewayv2.CfnRoute(
+        http_api_route_lambda_plus = aws_apigatewayv2_stable.CfnRoute(
             self,
             "Route_lambda_plus",
             api_id=apigw.api_id,
@@ -281,14 +283,14 @@ class CalculatorApiStack(cdk.Stack):
             self,
             "IntegrationMinus",
             http_api=apigw,
-            integration_type=aws_apigatewayv2.HttpIntegrationType.LAMBDA_PROXY,
+            integration_type=aws_apigatewayv2.HttpIntegrationType.AWS_PROXY, # LAMBDA_PROXY for cdk v1
             integration_uri=lambda_minus.function_arn,
             method=aws_apigatewayv2.HttpMethod.ANY,
             payload_format_version=aws_apigatewayv2.PayloadFormatVersion.VERSION_2_0,
             secure_server_name=sub_domain_public + '.' + dns_domain
         )
 
-        http_api_route_lambda_minus = aws_apigatewayv2.CfnRoute(
+        http_api_route_lambda_minus = aws_apigatewayv2_stable.CfnRoute(
             self,
             "Route_lambda_minus",
             api_id=apigw.api_id,
@@ -305,20 +307,19 @@ class CalculatorApiStack(cdk.Stack):
             self,
             "IntegrationTs",
             http_api=apigw,
-            integration_type=aws_apigatewayv2.HttpIntegrationType.LAMBDA_PROXY,
+            integration_type=aws_apigatewayv2.HttpIntegrationType.AWS_PROXY, # LAMBDA_PROXY for cdk v1
             integration_uri=lambda_typescript.function_arn,
             method=aws_apigatewayv2.HttpMethod.ANY,
             payload_format_version=aws_apigatewayv2.PayloadFormatVersion.VERSION_2_0,
             secure_server_name=sub_domain_public + '.' + dns_domain
         )
 
-        http_api_route_lambda_typescript = aws_apigatewayv2.CfnRoute(
+        http_api_route_lambda_typescript = aws_apigatewayv2_stable.CfnRoute(
             self,
             "Route_lambda_typescript",
             api_id=apigw.api_id,
             route_key="GET /ts",
             authorization_type="NONE",
-            # authorizer_id=jwt_authorizer.authorizer_id,
             target="integrations/" + endpoint_ts_integration.integration_id
         )
 
@@ -334,7 +335,7 @@ class CalculatorApiStack(cdk.Stack):
             integration_uri=self.userpool_demain_name + "/oauth2/token"
         )
 
-        http_api_oauth2_route = aws_apigatewayv2.CfnRoute(
+        http_api_oauth2_route = aws_apigatewayv2_stable.CfnRoute(
             self,
             "Oauth2Default",
             api_id=apigw.api_id,
@@ -392,7 +393,7 @@ class CalculatorApiStack(cdk.Stack):
         )
 
         # Add DNS name to Cloudformation output
-        core.CfnOutput(
+        CfnOutput(
             self,
             "DnsRecord",
             value=custom_domain_name.domain_name
