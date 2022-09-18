@@ -130,7 +130,8 @@ $ curl --location --request POST 'https://calculator-api.my-domain.com/oauth2/to
 Now we can query the API Gateway using this token
 
 ```bash
-$ curl --location --request GET 'https://calculator-api.my-domain.com/minus?val1=3&val2=10' --header 'Content-Type: application/json' --header 'Authorization: Bearer eyJraWQiOiJRcHNTWU5oVjJFRzNpQ1d6bDd2SVM4N...................................." \
+$ curl --location --request GET 'https://calculator-api.my-domain.com/minus?val1=3&val2=10' \
+        --header 'Content-Type: application/json' --header 'Authorization: Bearer eyJraWQiOiJRcHNTWU5oVjJFRzNpQ1d6bDd2SVM4N....................................' \
         --header 'Content-Type: application/json'
 7
 ```
