@@ -28,7 +28,9 @@ class CalculatorApiStack(Stack):
         userpool_domain = sub_domain_public
         hosted_zone = aws_route53.HostedZone.from_lookup( self, dns_domain, domain_name=dns_domain )
 
+        ###############################
         # Cognito
+        ###############################
 
         # Cognito Userpool will be deleted when deleting the Stack
         userpool = cognito.UserPool(
@@ -100,7 +102,10 @@ class CalculatorApiStack(Stack):
         self.userpool_demain_name = "https://" + userpool_domain + ".auth." + Aws.REGION + ".amazoncognito.com"
         self.jwt_issuer = "https://cognito-idp." + Aws.REGION + ".amazonaws.com/" + self.userpool_id
 
+        ###############################
         # HTTP API
+        ###############################
+        
         apigw = aws_apigatewayv2_alpha.HttpApi(
             self,
             "calculator_api",
