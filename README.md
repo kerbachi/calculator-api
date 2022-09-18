@@ -73,7 +73,7 @@ Get first the `UserPoolID` and the `UserPoolClientID` created by the CDK
 Uset them with `aws cognito-idp` to get the `ClientId` and the `ClientSecret`
 
 ```bash
-aws cognito-idp describe-user-pool-client --user-pool-id us-east-1_LX6a3ggxu --client-id 618jhi0ako4kukld7rsh8tuq2g
+$ aws cognito-idp describe-user-pool-client --user-pool-id us-east-1_LX6a3ggxu --client-id 618jhi0ako4kukld7rsh8tuq2g
 {
     "UserPoolClient": {
         "UserPoolId": "us-east-1_LX6a3ggxu",
@@ -118,7 +118,7 @@ b'NjE4amhpMGFrbzRrdWtsZDdyc2g4dHVxMmc6ZTE3NGpsdTVtZGtyNm8xdmVkcDV0dmM0cnM2bGVpMW
 We'll use that JWT token to authenticate with the API HTTP Gateway using the endpoint /oauth2/token
 
 ```bash
-curl --location --request POST 'https://calculator-api.my-domain.com/oauth2/token?grant_type=client_credentials&client_id=618jhi0ako4kukld7rsh8tuq2g$scope=AuthIdentifier/json.read' \
+$ curl --location --request POST 'https://calculator-api.my-domain.com/oauth2/token?grant_type=client_credentials&client_id=618jhi0ako4kukld7rsh8tuq2g$scope=AuthIdentifier/json.read' \
                     --header 'Authorization: Basic NjE4amhpMGFrbzRrdWtsZDdyc2g4dHVxMmc6ZTE3NGpsdTVtZGtyNm8xdmVkcDV0dmM0cnM2bGVpMW5xbGFwdWZqYzE0bHVwN2xoaW01' \
                     --header 'Content-Type: application/x-x-www-form-urlencoded'
 
@@ -130,11 +130,11 @@ curl --location --request POST 'https://calculator-api.my-domain.com/oauth2/toke
 Now we can query the API Gateway using this token
 
 ```bash
-curl --location --request GET 'https://calculator-api.my-domain.com/minus?val1=3&val2=10' --header 'Content-Type: application/json' --header 'Authorization: Bearer eyJraWQiOiJRcHNTWU5oVjJFRzNpQ1d6bDd2SVM4N...................................." \
+$ curl --location --request GET 'https://calculator-api.my-domain.com/minus?val1=3&val2=10' --header 'Content-Type: application/json' --header 'Authorization: Bearer eyJraWQiOiJRcHNTWU5oVjJFRzNpQ1d6bDd2SVM4N...................................." \
         --header 'Content-Type: application/json'
 7
 ```
-The result `7` (10-3) is returned from the Lambda `lambda_minus`
+The result `7` (=10-3) is returned from the Lambda `lambda_minus`
 
 
 However, the default route (in our case the root path) doesn't need  authentication 
