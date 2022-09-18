@@ -215,11 +215,12 @@ class CalculatorApiStack(Stack):
         )
 
         # Default route without authentication
+        # Since / is added to the the route_key, instead of #$default", any none coded path will return: code 404 "Not found"
         http_api_route_default = aws_apigatewayv2_stable.CfnRoute(
             self,
             "RouteDefault",
             api_id=apigw.api_id,
-            route_key="$default",
+            route_key="GET /",
             authorization_type="NONE",
             # authorizer_id=jwt_authorizer.authorizer_id,
             target="integrations/"+default_integration.integration_id
